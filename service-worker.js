@@ -1,67 +1,67 @@
 const CACHE_NAME = 'ramadan-habits-v1';
+const urlsToCache = [
+  '/',
+  '/index.html',
+  '/manifest.json',
+  '/icon.png'
+];
 
-// Install - cache essential files
+// Install event
 self.addEventListener('install', (event) => {
   console.log('[Service Worker] Installing...');
-  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll([
-        './',
-        './index.html',
-        './manifest.json'
-      ]).catch(err => {
-        console.warn('[Service Worker] Cache addAll error:', err);
-        return cache.add('./index.html');
+      return cache.addAll(urlsToCache).catch(() => {
+        console.log('[Service Worker] Some files failed to cache, continuing anyway');
       });
     })
   );
+  self.skipWaiting();
 });
 
-// Activate - claim clients
+// Activate event
 self.addEventListener('activate', (event) => {
   console.log('[Service Worker] Activating...');
-  self.clients.claim();
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
-        cacheNames.map(name => {
-          if (name !== CACHE_NAME) {
-            console.log('[Service Worker] Deleting old cache:', name);
-            return caches.delete(name);
+        cacheNames.map((cacheName) => {
+          if (cacheName !== CACHE_NAME) {
+            console.log('[Service Worker] Deleting old cache:', cacheName);
+            return caches.delete(cacheName);
           }
         })
       );
     })
   );
+  self.clients.claim();
 });
 
-// Fetch - try cache first, fallback to network
+// Fetch event
 self.addEventListener('fetch', (event) => {
-  // Only handle same-origin requests
-  if (!event.request.url.includes(self.location.origin)) {
+  if (event.request.method !== 'GET') {
     return;
   }
 
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
+    caches.match(event.request).then((response) => {
+      if (response) {
+        return response;
       }
-      
+
       return fetch(event.request).then((response) => {
-        if (!response || response.status !== 200) {
+        if (!response || response.status !== 200 || response.type === 'error') {
           return response;
         }
-        
+
         const responseToCache = response.clone();
         caches.open(CACHE_NAME).then((cache) => {
           cache.put(event.request, responseToCache);
         });
-        
+
         return response;
       }).catch(() => {
-        return caches.match('./index.html');
+        return caches.match('/index.html');
       });
     })
   );

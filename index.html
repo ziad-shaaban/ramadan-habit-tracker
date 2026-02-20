@@ -919,81 +919,55 @@
         const closeInstallBtn = document.getElementById('closeInstallBtn');
         let deferredPrompt = null;
 
-        console.log('%c=== PWA INSTALLATION DEBUG ===', 'font-size: 14px; font-weight: bold; color: #ffd966; padding: 10px;');
-        console.log('HTTPS/Localhost:', window.location.protocol === 'https:' || window.location.hostname === 'localhost' ? '✓' : '✗');
-        console.log('Manifest:', document.querySelector('link[rel="manifest"]') ? '✓' : '✗');
-        console.log('Service Worker Support:', 'serviceWorker' in navigator ? '✓' : '✗');
-        console.log('Page URL:', window.location.href);
-
-        // Capture install prompt
+        // Capture install prompt event
         window.addEventListener('beforeinstallprompt', (e) => {
-            console.log('%c✓ BEFOREINSTALLPROMPT FIRED', 'color: #ffd966; font-weight: bold; font-size: 12px;');
             e.preventDefault();
             deferredPrompt = e;
             if (installPromptEl) {
                 installPromptEl.classList.add('show');
-                console.log('Banner shown for user');
             }
         });
 
-        // Install button handler
+        // Install button click handler
         if (installBtn) {
             installBtn.addEventListener('click', async () => {
-                console.log('%c📲 Install button CLICKED', 'color: #ffd966; font-weight: bold;');
-                if (!deferredPrompt) {
-                    console.error('❌ No install prompt available!');
-                    return;
-                }
-                try {
-                    console.log('Showing install dialog...');
-                    deferredPrompt.prompt();
-                    const { outcome } = await deferredPrompt.userChoice;
-                    console.log('%c✓ User response:', 'color: #ffd966; font-weight: bold;', outcome);
-                    deferredPrompt = null;
-                    if (installPromptEl) installPromptEl.classList.remove('show');
-                } catch (error) {
-                    console.error('Installation error:', error);
+                if (!deferredPrompt) return;
+                
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                deferredPrompt = null;
+                
+                if (installPromptEl) {
+                    installPromptEl.classList.remove('show');
                 }
             });
         }
 
-        // Close button
+        // Close button handler
         if (closeInstallBtn) {
             closeInstallBtn.addEventListener('click', () => {
-                console.log('Close clicked');
-                if (installPromptEl) installPromptEl.classList.remove('show');
+                if (installPromptEl) {
+                    installPromptEl.classList.remove('show');
+                }
             });
         }
 
-        // App installed confirmation
+        // App installed event
         window.addEventListener('appinstalled', () => {
-            console.log('%c🎉 APP INSTALLED!', 'color: #ffd966; font-weight: bold; font-size: 14px;');
-            if (installPromptEl) installPromptEl.classList.remove('show');
-        });
-
-        // Show banner after page load
-        window.addEventListener('load', () => {
-            console.log('%c⏳ Page loaded, showing banner...', 'color: #ffd966;');
-            setTimeout(() => {
-                if (installPromptEl && !installPromptEl.classList.contains('show')) {
-                    installPromptEl.classList.add('show');
-                    console.log('%c✓ Banner displayed', 'color: #ffd966; font-weight: bold;');
-                }
-            }, 300);
+            if (installPromptEl) {
+                installPromptEl.classList.remove('show');
+            }
         });
 
         // Register service worker
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                console.log('Registering service worker...');
-                navigator.serviceWorker.register('./service-worker.js', { scope: './' })
-                    .then(reg => {
-                        console.log('%c✓ Service Worker READY', 'color: #ffd966; font-weight: bold;', reg.scope);
-                    })
-                    .catch(err => {
-                        console.error('%c✗ Service Worker ERROR:', 'color: red; font-weight: bold;', err.message);
-                    });
-            });
+            navigator.serviceWorker.register('./service-worker.js')
+                .then(reg => {
+                    console.log('Service Worker registered');
+                })
+                .catch(err => {
+                    console.error('Service Worker error:', err);
+                });
         }
     </script>
 </body>
