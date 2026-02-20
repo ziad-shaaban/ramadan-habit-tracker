@@ -2,8 +2,8 @@
   "name": "Ramadan 30·Habits - Daily Habit Tracker",
   "short_name": "Ramadan Habits",
   "description": "A beautiful 30-day daily habit tracker for Ramadan with 7 customizable habits",
-  "start_url": "/",
-  "scope": "/",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "orientation": "portrait-primary",
   "background_color": "#0f0b1a",
@@ -12,9 +12,15 @@
   "icons": [
     {
       "src": "icon.png.png",
-      "sizes": "any",
+      "sizes": "32x32",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "icon.png.png",
+      "sizes": "32x32",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
