@@ -10,13 +10,16 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Ramadan Habits">
     <meta name="mobile-web-app-capable" content="yes">
+    <meta name="msapplication-starturl" content="/index.html">
+    <meta name="msapplication-TileColor" content="#0f0b1a">
+    <meta name="msapplication-config" content="none">
     <title>رمضان کامل · 30-Day Habit Tracker</title>
     <!-- Manifest for PWA -->
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="/manifest.json">
     <!-- Apple Touch Icons -->
-    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="apple-touch-icon" href="/icon.png">
     <!-- Favicon -->
-    <link rel="icon" href="icon.png" type="image/png">
+    <link rel="icon" href="/icon.png" type="image/png">
     <!-- Font Awesome 6 (free) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- Google Fonts: Inter (modern) & Amiri for accent -->
@@ -919,31 +922,42 @@
         const closeInstallBtn = document.getElementById('closeInstallBtn');
         let deferredPrompt = null;
 
-        // Capture install prompt event
+        // Listen for the beforeinstallprompt event (Chrome/Edge)
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
+            console.log('✓ Install prompt available');
+            
+            // Show custom install banner
             if (installPromptEl) {
                 installPromptEl.classList.add('show');
             }
         });
 
-        // Install button click handler
+        // Handle install button click
         if (installBtn) {
             installBtn.addEventListener('click', async () => {
-                if (!deferredPrompt) return;
+                if (!deferredPrompt) {
+                    console.warn('No install prompt available');
+                    return;
+                }
                 
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                deferredPrompt = null;
-                
-                if (installPromptEl) {
-                    installPromptEl.classList.remove('show');
+                try {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    console.log('Installation outcome:', outcome);
+                    deferredPrompt = null;
+                    
+                    if (installPromptEl) {
+                        installPromptEl.classList.remove('show');
+                    }
+                } catch (error) {
+                    console.error('Installation error:', error);
                 }
             });
         }
 
-        // Close button handler
+        // Handle close button
         if (closeInstallBtn) {
             closeInstallBtn.addEventListener('click', () => {
                 if (installPromptEl) {
@@ -952,8 +966,9 @@
             });
         }
 
-        // App installed event
+        // Listen for app installed event
         window.addEventListener('appinstalled', () => {
+            console.log('✓ App installed successfully');
             if (installPromptEl) {
                 installPromptEl.classList.remove('show');
             }
@@ -961,13 +976,15 @@
 
         // Register service worker
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./service-worker.js')
-                .then(reg => {
-                    console.log('Service Worker registered');
-                })
-                .catch(err => {
-                    console.error('Service Worker error:', err);
-                });
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js', { scope: '/' })
+                    .then(reg => {
+                        console.log('✓ Service Worker registered:', reg.scope);
+                    })
+                    .catch(err => {
+                        console.error('✗ Service Worker failed:', err.message);
+                    });
+            });
         }
     </script>
 </body>

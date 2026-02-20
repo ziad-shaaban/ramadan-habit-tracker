@@ -1,13 +1,14 @@
 {
-  "name": "Ramadan 30·Habits",
+  "name": "Ramadan 30·Habits Tracker",
   "short_name": "Ramadan Habits",
-  "description": "30-day Ramadan habit tracker",
-  "start_url": "/",
+  "description": "Beautiful 30-day daily habit tracker for Ramadan with customizable habits",
+  "start_url": "/index.html",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
   "background_color": "#0f0b1a",
   "theme_color": "#ffd966",
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "icon.png",
@@ -20,8 +21,13 @@
       "sizes": "512x512",
       "type": "image/png",
       "purposes": "any"
+    },
+    {
+      "src": "icon.png",
+      "sizes": "any",
+      "type": "image/png"
     }
   ],
-  "categories": ["productivity", "lifestyle"],
+  "categories": ["productivity"],
   "screenshots": []
 }

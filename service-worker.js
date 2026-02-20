@@ -3,7 +3,8 @@ const urlsToCache = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/icon.png'
+  '/icon.png',
+  '/service-worker.js'
 ];
 
 // Install event
@@ -11,8 +12,9 @@ self.addEventListener('install', (event) => {
   console.log('[Service Worker] Installing...');
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(urlsToCache).catch(() => {
-        console.log('[Service Worker] Some files failed to cache, continuing anyway');
+      return cache.addAll(urlsToCache).catch((err) => {
+        console.log('[Service Worker] Some files unavailable, continuing...', err);
+        return cache.add('/index.html');
       });
     })
   );
@@ -27,7 +29,6 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
-            console.log('[Service Worker] Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
@@ -39,28 +40,34 @@ self.addEventListener('activate', (event) => {
 
 // Fetch event
 self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET') {
+  const { request } = event;
+  
+  // Skip non-GET requests
+  if (request.method !== 'GET') {
     return;
   }
 
   event.respondWith(
-    caches.match(event.request).then((response) => {
-      if (response) {
-        return response;
+    caches.match(request).then((cachedResponse) => {
+      if (cachedResponse) {
+        return cachedResponse;
       }
 
-      return fetch(event.request).then((response) => {
+      return fetch(request).then((response) => {
+        // Check if response is valid
         if (!response || response.status !== 200 || response.type === 'error') {
           return response;
         }
 
+        // Clone the response to cache it
         const responseToCache = response.clone();
         caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
+          cache.put(request, responseToCache);
         });
 
         return response;
       }).catch(() => {
+        // Return cached index.html for offline navigation
         return caches.match('/index.html');
       });
     })
