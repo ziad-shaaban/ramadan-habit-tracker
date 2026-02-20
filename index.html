@@ -986,13 +986,12 @@
         // Show install banner after a short delay as fallback (for browsers without beforeinstallprompt)
         window.addEventListener('load', () => {
             setTimeout(() => {
-                // If no beforeinstallprompt was fired, show banner anyway for manual instructions
-                if (!deferredPrompt && installPromptEl && !installPromptEl.classList.contains('show')) {
-                    console.log('%c⚠️ No beforeinstallprompt event - showing fallback banner', 'color: orange; font-weight: bold;');
-                    // Un-comment below to show banner on all browsers regardless:
-                    // installPromptEl.classList.add('show');
+                // Always show banner for manual instructions on all browsers
+                if (installPromptEl && !installPromptEl.classList.contains('show')) {
+                    console.log('%c✓ Showing install banner', 'color: #ffd966; font-weight: bold;');
+                    installPromptEl.classList.add('show');
                 }
-            }, 1000);
+            }, 500);
         });
 
         // Service Worker Registration
