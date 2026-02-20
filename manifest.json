@@ -1,59 +1,19 @@
 {
-  "name": "Ramadan 30·Habits - Daily Habit Tracker",
+  "name": "Ramadan 30·Habits",
   "short_name": "Ramadan Habits",
-  "description": "A beautiful 30-day daily habit tracker for Ramadan with 7 customizable habits",
-  "start_url": "./",
-  "scope": "./",
+  "description": "30-day Ramadan habit tracker",
+  "start_url": "/index.html",
+  "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
   "background_color": "#0f0b1a",
   "theme_color": "#ffd966",
-  "categories": ["productivity", "lifestyle"],
   "icons": [
     {
       "src": "icon.png",
-      "sizes": "32x32",
+      "sizes": "32x32 192x192 512x512",
       "type": "image/png",
       "purpose": "any"
-    },
-    {
-      "src": "icon.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icon.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icon.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable"
-    },
-    {
-      "src": "icon.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "Ramadan Habits",
-      "short_name": "Habits",
-      "description": "Track your daily Ramadan habits",
-      "url": "./",
-      "icons": [
-        {
-          "src": "icon.png",
-          "sizes": "192x192",
-          "type": "image/png"
-        }
-      ]
     }
   ]
 }

@@ -654,7 +654,7 @@
         <div id="daysGrid" class="days-grid"></div>
 
         <div class="footer-note">
-            <i class="fas fa-hand-holding-heart"></i>   every good deed counts   <i class="fas fa-hands-praying"></i>
+            <i class="fas fa-hand-holding-heart"></i>   Do with ❤ TO 🦆   <i class="fas fa-hands-praying"></i>
         </div>
     </div>
 
@@ -914,121 +914,101 @@
 
     <!-- Service Worker Registration & Install Prompt for PWA -->
     <script>
+        // PWA Checklist
+        const pwaChecklist = {
+            https: window.location.protocol === 'https:' || window.location.hostname === 'localhost',
+            manifest: !!document.querySelector('link[rel="manifest"]'),
+            serviceWorker: 'serviceWorker' in navigator,
+            installPromptSupport: true
+        };
+
+        console.log('%c📱 PWA CHECKLIST', 'font-size: 16px; font-weight: bold; color: #ffd966;');
+        console.log('HTTPS/Localhost:', pwaChecklist.https ? '✓ YES' : '✗ NO');
+        console.log('Manifest Link:', pwaChecklist.manifest ? '✓ YES' : '✗ NO');
+        console.log('Service Worker Support:', pwaChecklist.serviceWorker ? '✓ YES' : '✗ NO');
+        console.log('Install Prompt Support:', pwaChecklist.installPromptSupport ? '✓ YES' : '✗ NO');
+        console.log('%c---', 'color: #ffd966;');
+
         let deferredPrompt;
         const installPromptEl = document.getElementById('installPrompt');
         const installBtn = document.getElementById('installBtn');
         const closeInstallBtn = document.getElementById('closeInstallBtn');
 
-        console.log('%c🚀 PWA Init Started', 'font-size: 14px; color: #ffd966; font-weight: bold;');
-        console.log('Device:', {
-            userAgent: navigator.userAgent,
-            platform: navigator.platform,
-            serviceWorkerSupport: 'serviceWorker' in navigator,
-            installPromptSupport: window.matchMedia('(display-mode: browser)').matches
-        });
-
-        // Listen for the beforeinstallprompt event (Chrome, Edge, Samsung Internet)
+        // Listen for the beforeinstallprompt event
         window.addEventListener('beforeinstallprompt', (e) => {
-            console.log('%c✓ beforeinstallprompt fired', 'color: #ffd966; font-weight: bold;');
+            console.log('%c✓ BROWSER SENT INSTALL PROMPT', 'font-size: 14px; font-weight: bold; color: #ffd966;');
             e.preventDefault();
             deferredPrompt = e;
-            
-            // Show the install banner
             installPromptEl.classList.add('show');
-            console.log('Install prompt banner shown');
         });
 
         // Handle install button click
         installBtn.addEventListener('click', async () => {
             console.log('Install button clicked');
             if (deferredPrompt) {
-                try {
-                    deferredPrompt.prompt();
-                    const { outcome } = await deferredPrompt.userChoice;
-                    console.log(`%c✓ User response: ${outcome}`, 'color: #ffd966; font-weight: bold;');
-                    deferredPrompt = null;
-                    installPromptEl.classList.remove('show');
-                } catch (error) {
-                    console.error('Error during installation:', error);
-                }
-            } else {
-                console.warn('⚠️ No deferred prompt available for this browser');
-                // Fallback: show instructions based on browser type
-                const ua = navigator.userAgent;
-                let message = '';
-                
-                if (ua.includes('Safari') && !ua.includes('Chrome')) {
-                    message = '📱 iOS:\n1. Tap Share\n2. Tap "Add to Home Screen"\n3. Tap "Add"';
-                } else if (ua.includes('SamsungBrowser')) {
-                    message = '🤖 Samsung Internet:\n1. Tap Menu (⋮)\n2. Tap "Add to Home Screen"\nor use the install prompt if it appears';
-                } else {
-                    message = '📲 To install:\n1. Check your browser\'s install option\n2. Or look for an install button/prompt\n3. Confirm installation';
-                }
-                
-                alert('How to install:\n\n' + message);
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log('Installation outcome:', outcome);
+                deferredPrompt = null;
+                installPromptEl.classList.remove('show');
             }
         });
 
         // Handle close button click
         closeInstallBtn.addEventListener('click', () => {
-            console.log('Install prompt dismissed by user');
+            console.log('Install prompt dismissed');
             installPromptEl.classList.remove('show');
             deferredPrompt = null;
         });
 
-        // Hide install prompt when app is installed
+        // When app is installed
         window.addEventListener('appinstalled', () => {
-            console.log('%c✓ PWA installed successfully!', 'color: #ffd966; font-weight: bold; font-size: 14px;');
+            console.log('%c✓ APP INSTALLED SUCCESSFULLY', 'font-size: 14px; font-weight: bold; color: #ffd966;');
             installPromptEl.classList.remove('show');
-            deferredPrompt = null;
         });
 
-        // Show install banner after a short delay as fallback (for browsers without beforeinstallprompt)
+        // Show banner on load (for manual installation)
         window.addEventListener('load', () => {
             setTimeout(() => {
-                // Always show banner for manual instructions on all browsers
                 if (installPromptEl && !installPromptEl.classList.contains('show')) {
-                    console.log('%c✓ Showing install banner', 'color: #ffd966; font-weight: bold;');
                     installPromptEl.classList.add('show');
+                    console.log('%c✓ Install banner displayed', 'color: #ffd966; font-weight: bold;');
                 }
             }, 500);
         });
 
-        // Service Worker Registration
+        // Register Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                console.log('Registering Service Worker...');
+                console.log('%c⏳ Registering Service Worker...', 'color: #ffd966;');
                 navigator.serviceWorker.register('./service-worker.js')
                     .then(registration => {
-                        console.log('%c✓ Service Worker registered successfully', 'color: #ffd966; font-weight: bold;', registration);
-                        
-                        // Check for updates periodically
-                        setInterval(() => {
-                            registration.update().catch(e => console.log('Update check failed:', e));
-                        }, 60000); // Check every minute
+                        console.log('%c✓ SERVICE WORKER REGISTERED', 'font-size: 14px; font-weight: bold; color: #ffd966;');
+                        console.log('Scope:', registration.scope);
                     })
                     .catch(error => {
-                        console.error('%c✗ Service Worker registration failed', 'color: red; font-weight: bold;', error);
+                        console.error('%c✗ SERVICE WORKER FAILED', 'font-size: 14px; font-weight: bold; color: red;', error);
                     });
             });
-            
-            // Handle service worker updates
-            navigator.serviceWorker.addEventListener('controllerchange', () => {
-                console.log('%c✓ New service worker activated', 'color: #ffd966; font-weight: bold;');
-            });
-        } else {
-            console.warn('⚠️ Service Worker not supported in this browser');
         }
 
         // Check manifest
         window.addEventListener('load', () => {
-            const manifest = document.querySelector('link[rel="manifest"]');
-            if (manifest) {
-                console.log('✓ Manifest found:', manifest.href);
-            } else {
-                console.warn('⚠️ No manifest link found');
-            }
+            fetch('manifest.json')
+                .then(r => r.json())
+                .then(manifest => {
+                    console.log('%c✓ MANIFEST LOADED', 'font-size: 14px; font-weight: bold; color: #ffd966;');
+                    console.log('App Name:', manifest.name);
+                    console.log('Display:', manifest.display);
+                    console.log('Start URL:', manifest.start_url);
+                    console.log('Icons:', manifest.icons.length);
+                })
+                .catch(err => {
+                    console.error('%c✗ MANIFEST FAILED', 'font-size: 14px; font-weight: bold; color: red;', err);
+                });
         });
+
+        console.log('%c👉 IMPORTANT: Open browser DevTools by pressing F12 and check this console for all messages above', 'font-size: 12px; color: orange; font-weight: bold; padding: 10px; background: rgba(255,217,102,0.1);');
     </script>
 </body>
 </html>
