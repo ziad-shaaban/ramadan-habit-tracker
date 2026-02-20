@@ -2,11 +2,21 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="description" content="A beautiful 30-day daily habit tracker for Ramadan with 7 customizable habits">
+    <meta name="theme-color" content="#ffd966">
+    <meta name="color-scheme" content="dark">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Ramadan Habits">
+    <meta name="mobile-web-app-capable" content="yes">
     <title>رمضان کامل · 30-Day Habit Tracker</title>
+    <!-- Manifest for PWA -->
+    <link rel="manifest" href="manifest.json">
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="icon-192.png">
     <!-- Font Awesome 6 (free) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="apple-touch-icon" href="icon.png">
     <!-- Google Fonts: Inter (modern) & Amiri for accent -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -792,6 +802,21 @@
 
             // Optional: update tooltips when names change (already done in renderGrid)
         })();
+    </script>
+
+    <!-- Service Worker Registration for PWA -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => {
+                        console.log('Service Worker registered:', registration);
+                    })
+                    .catch(error => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
+        }
     </script>
 </body>
 </html>
