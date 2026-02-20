@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>رمضان کامل · 30-Day Habit Tracker</title>
+    <!-- Font Awesome 6 (free) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Fonts: Inter (modern) & Amiri for accent -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: radial-gradient(circle at 10% 20%, #1e1a2f, #0f0b1a 90%);
+            background-attachment: fixed;
+            padding: 1.5rem 1rem 3rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* decorative ramadan elements */
+        body::before {
+            content: "🌙";
+            font-size: 18vw;
+            position: absolute;
+            top: -5vh;
+            right: -5vw;
+            opacity: 0.03;
+            transform: rotate(15deg);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        body::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 30% 40%, rgba(255, 215, 0, 0.02) 0%, transparent 20%),
+                radial-gradient(circle at 80% 70%, rgba(200, 160, 80, 0.02) 0%, transparent 25%),
+                repeating-linear-gradient(45deg, rgba(255, 215, 0, 0.01) 0px, rgba(255, 215, 0, 0.01) 2px, transparent 2px, transparent 8px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1400px;
+            width: 100%;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* header */
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(8px);
+            background: rgba(22, 18, 35, 0.5);
+            border: 1px solid rgba(255, 215, 0, 0.15);
+            border-radius: 60px;
+            padding: 1.8rem 1.5rem;
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,200,50,0.1) inset;
+        }
+
+        .header h1 {
+            font-size: clamp(2rem, 8vw, 3.3rem);
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #f9e2a1, #dbb86b, #f9e2a1);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .header h1 i {
+            font-size: 2.5rem;
+            color: #e9c46a;
+            text-shadow: 0 0 15px #ffd966;
+        }
+
+        .subhead {
+            color: #b9ad8a;
+            font-size: 1.1rem;
+            margin-top: 0.6rem;
+            letter-spacing: 0.3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+            font-weight: 400;
+        }
+
+        .subhead span {
+            background: rgba(255, 215, 0, 0.1);
+            padding: 0.3rem 1.2rem;
+            border-radius: 40px;
+            border: 1px solid rgba(255, 215, 0, 0.25);
+            font-size: 0.95rem;
+            backdrop-filter: blur(2px);
+        }
+
+        /* habit editor panel */
+        .editor-panel {
+            background: rgba(28, 22, 40, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 200, 70, 0.25);
+            border-radius: 40px;
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 15px 30px -10px black;
+        }
+
+        .editor-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .editor-header h3 {
+            color: #faeac6;
+            font-weight: 500;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .habit-inputs {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .habit-input-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(0,0,0,0.3);
+            padding: 0.4rem 0.8rem;
+            border-radius: 50px;
+            border: 1px solid #4a3f2f;
+        }
+
+        .habit-input-item i {
+            color: #dbb86b;
+            width: 24px;
+            text-align: center;
+        }
+
+        .habit-input-item input {
+            background: transparent;
+            border: none;
+            color: #f0e2c5;
+            padding: 0.5rem 0;
+            width: 100%;
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        .habit-input-item input::placeholder {
+            color: #7a6e54;
+            font-style: italic;
+        }
+
+        .editor-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            background: rgba(255, 200, 70, 0.08);
+            border: 1.5px solid rgba(255, 200, 70, 0.5);
+            color: #efdbaf;
+            padding: 0.7rem 1.8rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            backdrop-filter: blur(5px);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            background: rgba(255, 200, 70, 0.2);
+            border-color: #f5cd7a;
+            color: #fff0d0;
+        }
+
+        /* 10-day score cards */
+        .ten-day-scores {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+            justify-content: center;
+        }
+
+        .score-card {
+            flex: 1 1 180px;
+            background: rgba(20, 16, 30, 0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 200, 70, 0.3);
+            border-radius: 30px;
+            padding: 1.2rem 1rem;
+            text-align: center;
+            box-shadow: 0 10px 20px -5px black;
+        }
+
+        .score-card .label {
+            color: #b9a16e;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+        }
+
+        .score-card .value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #faeac6;
+            line-height: 1.2;
+        }
+
+        .score-card .sub {
+            color: #a3916b;
+            font-size: 0.9rem;
+        }
+
+        .score-card .progress-bg {
+            background: #1f192b;
+            height: 8px;
+            border-radius: 10px;
+            margin: 0.8rem 0 0.3rem;
+            overflow: hidden;
+        }
+
+        .score-card .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #dbb158, #f9d77e);
+            border-radius: 10px;
+            width: 0%;
+        }
+
+        /* overall progress panel */
+        .progress-panel {
+            background: rgba(28, 22, 40, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 200, 70, 0.25);
+            border-radius: 40px;
+            padding: 1.6rem 2rem;
+            margin-bottom: 2.8rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 2rem;
+        }
+
+        .progress-stats {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(255, 210, 90, 0.12);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.7rem;
+            color: #f5cd7a;
+            border: 1px solid rgba(255, 210, 90, 0.3);
+        }
+
+        .stat-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #b09f7a;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #faeac6;
+            line-height: 1.2;
+        }
+
+        .progress-bar-container {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .progress-bar-bg {
+            background: rgba(0,0,0,0.5);
+            height: 18px;
+            border-radius: 30px;
+            border: 1px solid rgba(255,215,0,0.3);
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #dbb158, #f9d77e, #dbb158);
+            border-radius: 30px;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 15px #f9c978;
+        }
+
+        .progress-percent {
+            text-align: right;
+            font-weight: 600;
+            color: #efdbaf;
+            font-size: 1.1rem;
+        }
+
+        /* days grid */
+        .days-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 1.2rem;
+            margin-top: 1rem;
+        }
+
+        .day-card {
+            background: rgba(25, 20, 35, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 200, 70, 0.15);
+            border-radius: 32px;
+            padding: 1rem 0.5rem 0.8rem;
+            transition: transform 0.15s, border-color 0.2s;
+            box-shadow: 0 15px 25px -15px black;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .day-card:hover {
+            border-color: rgba(255, 200, 70, 0.6);
+            transform: translateY(-3px);
+        }
+
+        .day-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 0 0.5rem 0.5rem;
+        }
+
+        .day-number {
+            font-size: 1.3rem;
+            font-weight: 700;
+            background: linear-gradient(145deg, #f5d97b, #c9a24b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .day-score {
+            background: rgba(0,0,0,0.5);
+            border-radius: 30px;
+            padding: 0.2rem 0.7rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #efdbaf;
+            border: 1px solid #8b7a54;
+        }
+
+        .habits-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.4rem;
+            width: 100%;
+        }
+
+        .habit-circle {
+            width: 42px;
+            height: 42px;
+            border-radius: 42px;
+            background: rgba(20, 15, 25, 0.8);
+            border: 1.5px solid #4a3f2f;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: #887e66;
+            cursor: pointer;
+            transition: 0.15s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            flex-shrink: 0;
+        }
+
+        .habit-circle.completed {
+            background: radial-gradient(circle at 30% 30%, #f5cb7c, #ca9f4b);
+            border-color: #fae48b;
+            color: #1e1525;
+            box-shadow: 0 0 15px #f9c978;
+        }
+
+        .habit-circle[data-tooltip] {
+            position: relative;
+        }
+
+        @media (max-width: 500px) {
+            .habit-circle {
+                width: 38px;
+                height: 38px;
+                font-size: 1rem;
+            }
+        }
+
+        .footer-note {
+            margin-top: 3.5rem;
+            color: #786e51;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            backdrop-filter: blur(4px);
+            background: rgba(0,0,0,0.2);
+            padding: 0.7rem 2rem;
+            border-radius: 60px;
+            border: 1px solid #3a351f;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                <i class="fas fa-moon"></i> 
+                Ramadan 30·Habits
+                <i class="fas fa-star-and-crescent"></i>
+            </h1>
+            <div class="subhead">
+                <span><i class="fas fa-calendar-alt"></i> Day 1 → 30</span>
+                <span><i class="fas fa-pen"></i> 7 custom habits</span>
+            </div>
+        </div>
+
+        <!-- habit editor panel (collapsible feel) -->
+        <div class="editor-panel" id="editorPanel">
+            <div class="editor-header">
+                <h3><i class="fas fa-gear"></i> Customize your 7 habits</h3>
+                <button class="btn" id="saveHabitNamesBtn"><i class="fas fa-save"></i> Save names</button>
+            </div>
+            <div class="habit-inputs" id="habitInputsContainer"></div>
+            <div class="editor-actions">
+                <button class="btn" id="resetHabitsBtn"><i class="fas fa-undo-alt"></i> Reset to defaults</button>
+            </div>
+        </div>
+
+        <!-- 10-day scores -->
+        <div class="ten-day-scores" id="tenDayScores">
+            <!-- dynamically filled -->
+        </div>
+
+        <!-- overall progress & reset -->
+        <div class="progress-panel">
+            <div class="progress-stats">
+                <div class="stat-item">
+                    <div class="stat-icon"><i class="fas fa-check-double"></i></div>
+                    <div class="stat-text">
+                        <span class="stat-label">completed</span>
+                        <span class="stat-number" id="completed-counter">0</span>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon"><i class="fas fa-ramadan"></i></div>
+                    <div class="stat-text">
+                        <span class="stat-label">total</span>
+                        <span class="stat-number" id="total-counter">210</span>
+                    </div>
+                </div>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="progress-fill" style="width: 0%;"></div>
+                </div>
+                <div class="progress-percent" id="progress-percent">0%</div>
+            </div>
+            <button class="reset-btn btn" id="resetCompletionsBtn"><i class="fas fa-rotate-left"></i> Reset all days</button>
+        </div>
+
+        <!-- days grid -->
+        <div id="daysGrid" class="days-grid"></div>
+
+        <div class="footer-note">
+            <i class="fas fa-hand-holding-heart"></i>   every good deed counts   <i class="fas fa-hands-praying"></i>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ---------- CONFIG ----------
+            const FIRST_DAY = 1;
+            const LAST_DAY = 30;             // 30 days
+            const HABIT_COUNT = 7;
+
+            // Default habit names & icons (7 distinct free icons)
+            const DEFAULT_HABIT_NAMES = [
+                "Salah", "Quran", "Sadaqah", "Du'a", "Taraweeh", "Dhikr", "Iftar"
+            ];
+            const HABIT_ICONS = [
+                "fa-solid fa-praying-hands",
+                "fa-solid fa-book-quran",
+                "fa-solid fa-hand-holding-heart",
+                "fa-solid fa-hands-praying",
+                "fa-solid fa-mosque",
+                "fa-solid fa-star-and-crescent",  // dhikr
+                "fa-solid fa-utensils"            // iftar
+            ];
+
+            // Storage keys
+            const STORAGE_COMPLETIONS = 'ramadanHabits_1_30_v2';
+            const STORAGE_HABIT_NAMES = 'ramadanHabits_names';
+
+            // ---------- DATA ----------
+            // completions: { "day1": [bool...], ... }
+            let completions = JSON.parse(localStorage.getItem(STORAGE_COMPLETIONS));
+            if (!completions) {
+                completions = {};
+                for (let d = FIRST_DAY; d <= LAST_DAY; d++) {
+                    completions[`day${d}`] = new Array(HABIT_COUNT).fill(false);
+                }
+            } else {
+                // ensure all days exist
+                let updated = false;
+                for (let d = FIRST_DAY; d <= LAST_DAY; d++) {
+                    const key = `day${d}`;
+                    if (!completions[key] || completions[key].length !== HABIT_COUNT) {
+                        completions[key] = new Array(HABIT_COUNT).fill(false);
+                        updated = true;
+                    }
+                }
+                if (updated) {
+                    localStorage.setItem(STORAGE_COMPLETIONS, JSON.stringify(completions));
+                }
+            }
+
+            // habit names
+            let habitNames = JSON.parse(localStorage.getItem(STORAGE_HABIT_NAMES));
+            if (!habitNames || habitNames.length !== HABIT_COUNT) {
+                habitNames = [...DEFAULT_HABIT_NAMES];
+            }
+
+            // ---------- HELPER FUNCTIONS ----------
+            function totalPossibleCompletions() {
+                return (LAST_DAY - FIRST_DAY + 1) * HABIT_COUNT; // 30*7 = 210
+            }
+
+            function computeOverallStats() {
+                let completed = 0;
+                for (let d = FIRST_DAY; d <= LAST_DAY; d++) {
+                    const arr = completions[`day${d}`] || [];
+                    for (let i = 0; i < arr.length; i++) {
+                        if (arr[i]) completed++;
+                    }
+                }
+                return { completed, total: totalPossibleCompletions() };
+            }
+
+            function computeTenDayScores() {
+                // blocks: 1-10, 11-20, 21-30
+                const blocks = [
+                    { start: 1, end: 10, completed: 0, total: 10 * HABIT_COUNT },
+                    { start: 11, end: 20, completed: 0, total: 10 * HABIT_COUNT },
+                    { start: 21, end: 30, completed: 0, total: 10 * HABIT_COUNT }
+                ];
+                for (let d = FIRST_DAY; d <= LAST_DAY; d++) {
+                    const arr = completions[`day${d}`] || [];
+                    let dayCompleted = arr.filter(v => v).length;
+                    if (d <= 10) blocks[0].completed += dayCompleted;
+                    else if (d <= 20) blocks[1].completed += dayCompleted;
+                    else blocks[2].completed += dayCompleted;
+                }
+                return blocks;
+            }
+
+            // Update all UI stats
+            function refreshAllStats() {
+                const { completed, total } = computeOverallStats();
+                document.getElementById('completed-counter').innerText = completed;
+                document.getElementById('total-counter').innerText = total;
+                const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+                document.getElementById('progress-fill').style.width = percent + '%';
+                document.getElementById('progress-percent').innerText = percent + '%';
+
+                // ten day scores
+                const blocks = computeTenDayScores();
+                const container = document.getElementById('tenDayScores');
+                container.innerHTML = '';
+                blocks.forEach(block => {
+                    const percent = Math.round((block.completed / block.total) * 100);
+                    const card = document.createElement('div');
+                    card.className = 'score-card';
+                    card.innerHTML = `
+                        <div class="label">Days ${block.start}–${block.end}</div>
+                        <div class="value">${block.completed}/${block.total}</div>
+                        <div class="sub">${percent}%</div>
+                        <div class="progress-bg"><div class="progress-fill" style="width:${percent}%"></div></div>
+                    `;
+                    container.appendChild(card);
+                });
+            }
+
+            // Render habit editor inputs
+            function renderHabitEditor() {
+                const container = document.getElementById('habitInputsContainer');
+                container.innerHTML = '';
+                for (let i = 0; i < HABIT_COUNT; i++) {
+                    const div = document.createElement('div');
+                    div.className = 'habit-input-item';
+                    div.innerHTML = `
+                        <i class="${HABIT_ICONS[i]}"></i>
+                        <input type="text" id="habit_name_${i}" value="${habitNames[i].replace(/"/g, '&quot;')}" placeholder="Habit ${i+1}">
+                    `;
+                    container.appendChild(div);
+                }
+            }
+
+            // Save habit names from editor
+            function saveHabitNames() {
+                const newNames = [];
+                for (let i = 0; i < HABIT_COUNT; i++) {
+                    const input = document.getElementById(`habit_name_${i}`);
+                    if (input) newNames.push(input.value.trim() || DEFAULT_HABIT_NAMES[i]);
+                    else newNames.push(habitNames[i]); // fallback
+                }
+                habitNames = newNames;
+                localStorage.setItem(STORAGE_HABIT_NAMES, JSON.stringify(habitNames));
+                // re-render grid to update tooltips
+                renderGrid();
+            }
+
+            // Reset habit names to defaults
+            function resetHabitNamesToDefault() {
+                habitNames = [...DEFAULT_HABIT_NAMES];
+                localStorage.setItem(STORAGE_HABIT_NAMES, JSON.stringify(habitNames));
+                renderHabitEditor();
+                renderGrid();
+            }
+
+            // Reset all completions (all false)
+            function resetCompletions() {
+                for (let d = FIRST_DAY; d <= LAST_DAY; d++) {
+                    completions[`day${d}`] = new Array(HABIT_COUNT).fill(false);
+                }
+                localStorage.setItem(STORAGE_COMPLETIONS, JSON.stringify(completions));
+                renderGrid();
+                refreshAllStats();
+            }
+
+            // Render main grid of days
+            function renderGrid() {
+                const grid = document.getElementById('daysGrid');
+                grid.innerHTML = '';
+
+                for (let day = FIRST_DAY; day <= LAST_DAY; day++) {
+                    const dayKey = `day${day}`;
+                    const dayHabits = completions[dayKey] || new Array(HABIT_COUNT).fill(false);
+                    const completedToday = dayHabits.filter(v => v).length;
+
+                    const card = document.createElement('div');
+                    card.className = 'day-card';
+
+                    // header with day number and score
+                    const header = document.createElement('div');
+                    header.className = 'day-header';
+                    header.innerHTML = `
+                        <span class="day-number"><i class="fa-regular fa-moon"></i> ${day}</span>
+                        <span class="day-score">${completedToday}/${HABIT_COUNT}</span>
+                    `;
+                    card.appendChild(header);
+
+                    const habitsRow = document.createElement('div');
+                    habitsRow.className = 'habits-row';
+
+                    for (let hIdx = 0; hIdx < HABIT_COUNT; hIdx++) {
+                        const isCompleted = dayHabits[hIdx] === true;
+                        const circle = document.createElement('div');
+                        circle.className = `habit-circle ${isCompleted ? 'completed' : ''}`;
+                        circle.setAttribute('data-day', day);
+                        circle.setAttribute('data-habit-index', hIdx);
+                        circle.setAttribute('title', habitNames[hIdx]); // tooltip
+
+                        const iconElem = document.createElement('i');
+                        iconElem.className = HABIT_ICONS[hIdx];
+                        circle.appendChild(iconElem);
+
+                        circle.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            const d = parseInt(circle.getAttribute('data-day'));
+                            const idx = parseInt(circle.getAttribute('data-habit-index'));
+                            const key = `day${d}`;
+                            if (completions[key] && completions[key][idx] !== undefined) {
+                                completions[key][idx] = !completions[key][idx];
+                                localStorage.setItem(STORAGE_COMPLETIONS, JSON.stringify(completions));
+                                // update this circle and day score efficiently
+                                circle.classList.toggle('completed');
+                                // update the day score badge
+                                const parentCard = circle.closest('.day-card');
+                                if (parentCard) {
+                                    const dayHabitsNow = completions[key];
+                                    const newCompleted = dayHabitsNow.filter(v => v).length;
+                                    const badge = parentCard.querySelector('.day-score');
+                                    if (badge) badge.innerText = `${newCompleted}/${HABIT_COUNT}`;
+                                }
+                                refreshAllStats(); // update global and 10-day
+                            }
+                        });
+
+                        habitsRow.appendChild(circle);
+                    }
+
+                    card.appendChild(habitsRow);
+                    grid.appendChild(card);
+                }
+            }
+
+            // ---------- INITIAL RENDER ----------
+            renderHabitEditor();
+            renderGrid();
+            refreshAllStats();
+
+            // ---------- EVENT LISTENERS ----------
+            document.getElementById('saveHabitNamesBtn').addEventListener('click', () => {
+                saveHabitNames();
+            });
+
+            document.getElementById('resetHabitsBtn').addEventListener('click', () => {
+                if (confirm('Reset habit names to defaults? (completions will not be affected)')) {
+                    resetHabitNamesToDefault();
+                }
+            });
+
+            document.getElementById('resetCompletionsBtn').addEventListener('click', () => {
+                if (confirm('Reset all progress for days 1 to 30?')) {
+                    resetCompletions();
+                }
+            });
+
+            // Optional: update tooltips when names change (already done in renderGrid)
+        })();
+    </script>
+</body>
+</html>
