@@ -914,101 +914,87 @@
 
     <!-- Service Worker Registration & Install Prompt for PWA -->
     <script>
-        // PWA Checklist
-        const pwaChecklist = {
-            https: window.location.protocol === 'https:' || window.location.hostname === 'localhost',
-            manifest: !!document.querySelector('link[rel="manifest"]'),
-            serviceWorker: 'serviceWorker' in navigator,
-            installPromptSupport: true
-        };
-
-        console.log('%c📱 PWA CHECKLIST', 'font-size: 16px; font-weight: bold; color: #ffd966;');
-        console.log('HTTPS/Localhost:', pwaChecklist.https ? '✓ YES' : '✗ NO');
-        console.log('Manifest Link:', pwaChecklist.manifest ? '✓ YES' : '✗ NO');
-        console.log('Service Worker Support:', pwaChecklist.serviceWorker ? '✓ YES' : '✗ NO');
-        console.log('Install Prompt Support:', pwaChecklist.installPromptSupport ? '✓ YES' : '✗ NO');
-        console.log('%c---', 'color: #ffd966;');
-
-        let deferredPrompt;
         const installPromptEl = document.getElementById('installPrompt');
         const installBtn = document.getElementById('installBtn');
         const closeInstallBtn = document.getElementById('closeInstallBtn');
+        let deferredPrompt = null;
 
-        // Listen for the beforeinstallprompt event
+        console.log('%c=== PWA INSTALLATION DEBUG ===', 'font-size: 14px; font-weight: bold; color: #ffd966; padding: 10px;');
+        console.log('HTTPS/Localhost:', window.location.protocol === 'https:' || window.location.hostname === 'localhost' ? '✓' : '✗');
+        console.log('Manifest:', document.querySelector('link[rel="manifest"]') ? '✓' : '✗');
+        console.log('Service Worker Support:', 'serviceWorker' in navigator ? '✓' : '✗');
+        console.log('Page URL:', window.location.href);
+
+        // Capture install prompt
         window.addEventListener('beforeinstallprompt', (e) => {
-            console.log('%c✓ BROWSER SENT INSTALL PROMPT', 'font-size: 14px; font-weight: bold; color: #ffd966;');
+            console.log('%c✓ BEFOREINSTALLPROMPT FIRED', 'color: #ffd966; font-weight: bold; font-size: 12px;');
             e.preventDefault();
             deferredPrompt = e;
-            installPromptEl.classList.add('show');
-        });
-
-        // Handle install button click
-        installBtn.addEventListener('click', async () => {
-            console.log('Install button clicked');
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                console.log('Installation outcome:', outcome);
-                deferredPrompt = null;
-                installPromptEl.classList.remove('show');
+            if (installPromptEl) {
+                installPromptEl.classList.add('show');
+                console.log('Banner shown for user');
             }
         });
 
-        // Handle close button click
-        closeInstallBtn.addEventListener('click', () => {
-            console.log('Install prompt dismissed');
-            installPromptEl.classList.remove('show');
-            deferredPrompt = null;
-        });
-
-        // When app is installed
-        window.addEventListener('appinstalled', () => {
-            console.log('%c✓ APP INSTALLED SUCCESSFULLY', 'font-size: 14px; font-weight: bold; color: #ffd966;');
-            installPromptEl.classList.remove('show');
-        });
-
-        // Show banner on load (for manual installation)
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                if (installPromptEl && !installPromptEl.classList.contains('show')) {
-                    installPromptEl.classList.add('show');
-                    console.log('%c✓ Install banner displayed', 'color: #ffd966; font-weight: bold;');
+        // Install button handler
+        if (installBtn) {
+            installBtn.addEventListener('click', async () => {
+                console.log('%c📲 Install button CLICKED', 'color: #ffd966; font-weight: bold;');
+                if (!deferredPrompt) {
+                    console.error('❌ No install prompt available!');
+                    return;
                 }
-            }, 500);
-        });
-
-        // Register Service Worker
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                console.log('%c⏳ Registering Service Worker...', 'color: #ffd966;');
-                navigator.serviceWorker.register('./service-worker.js')
-                    .then(registration => {
-                        console.log('%c✓ SERVICE WORKER REGISTERED', 'font-size: 14px; font-weight: bold; color: #ffd966;');
-                        console.log('Scope:', registration.scope);
-                    })
-                    .catch(error => {
-                        console.error('%c✗ SERVICE WORKER FAILED', 'font-size: 14px; font-weight: bold; color: red;', error);
-                    });
+                try {
+                    console.log('Showing install dialog...');
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    console.log('%c✓ User response:', 'color: #ffd966; font-weight: bold;', outcome);
+                    deferredPrompt = null;
+                    if (installPromptEl) installPromptEl.classList.remove('show');
+                } catch (error) {
+                    console.error('Installation error:', error);
+                }
             });
         }
 
-        // Check manifest
-        window.addEventListener('load', () => {
-            fetch('manifest.json')
-                .then(r => r.json())
-                .then(manifest => {
-                    console.log('%c✓ MANIFEST LOADED', 'font-size: 14px; font-weight: bold; color: #ffd966;');
-                    console.log('App Name:', manifest.name);
-                    console.log('Display:', manifest.display);
-                    console.log('Start URL:', manifest.start_url);
-                    console.log('Icons:', manifest.icons.length);
-                })
-                .catch(err => {
-                    console.error('%c✗ MANIFEST FAILED', 'font-size: 14px; font-weight: bold; color: red;', err);
-                });
+        // Close button
+        if (closeInstallBtn) {
+            closeInstallBtn.addEventListener('click', () => {
+                console.log('Close clicked');
+                if (installPromptEl) installPromptEl.classList.remove('show');
+            });
+        }
+
+        // App installed confirmation
+        window.addEventListener('appinstalled', () => {
+            console.log('%c🎉 APP INSTALLED!', 'color: #ffd966; font-weight: bold; font-size: 14px;');
+            if (installPromptEl) installPromptEl.classList.remove('show');
         });
 
-        console.log('%c👉 IMPORTANT: Open browser DevTools by pressing F12 and check this console for all messages above', 'font-size: 12px; color: orange; font-weight: bold; padding: 10px; background: rgba(255,217,102,0.1);');
+        // Show banner after page load
+        window.addEventListener('load', () => {
+            console.log('%c⏳ Page loaded, showing banner...', 'color: #ffd966;');
+            setTimeout(() => {
+                if (installPromptEl && !installPromptEl.classList.contains('show')) {
+                    installPromptEl.classList.add('show');
+                    console.log('%c✓ Banner displayed', 'color: #ffd966; font-weight: bold;');
+                }
+            }, 300);
+        });
+
+        // Register service worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                console.log('Registering service worker...');
+                navigator.serviceWorker.register('./service-worker.js', { scope: './' })
+                    .then(reg => {
+                        console.log('%c✓ Service Worker READY', 'color: #ffd966; font-weight: bold;', reg.scope);
+                    })
+                    .catch(err => {
+                        console.error('%c✗ Service Worker ERROR:', 'color: red; font-weight: bold;', err.message);
+                    });
+            });
+        }
     </script>
 </body>
 </html>
